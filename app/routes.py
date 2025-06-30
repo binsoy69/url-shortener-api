@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from app.models import db, ShortURL
 from app.utils import generate_short_code
 from datetime import datetime, timezone
+from flask import redirect
 
 bp = Blueprint("api", __name__)
 
@@ -103,3 +104,16 @@ def get_url_stats(short_code):
         "url": short_url.url,
         "accessCount": short_url.access_count
     }), 200
+
+
+@bp.route("/r/<string:short_code>", methods=["GET"])
+def redirect_short_url(short_code):
+    short_url = ShortURL.query.filter_by(short_code=short_code).first()
+
+    if not short_url:
+        return jsonify({"error": "Short URL not found"}), 404
+
+    short_url.access_count += 1
+    db.session.commit()
+
+    return redirect(short_url.url)
