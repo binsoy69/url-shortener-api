@@ -32,3 +32,21 @@ def create_short_url():
         "createdAt": new_url.created_at.isoformat(),
         "updatedAt": new_url.updated_at.isoformat()
     }), 201
+
+
+@bp.route("/shorten/<string:short_code>", methods=["GET"])
+def get_original_url(short_code):
+    short_url = ShortURL.query.filter_by(short_code=short_code).first()
+
+    if not short_url:
+        return jsonify({"error": "Short URL not found"}), 404
+
+    # Optional: increment access count here if this counts as an access
+    return jsonify({
+        "id": short_url.id,
+        "url": short_url.url,
+        "shortCode": short_url.short_code,
+        "createdAt": short_url.created_at.isoformat(),
+        "updatedAt": short_url.updated_at.isoformat()
+    }), 200
+
