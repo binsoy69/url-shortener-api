@@ -3,8 +3,13 @@ from app.models import db, ShortURL
 from app.utils import generate_short_code
 from datetime import datetime, timezone
 from flask import redirect
+from flask import render_template
 
 bp = Blueprint("api", __name__)
+
+@bp.route("/", methods=["GET"])
+def home():
+    return render_template("index.html")
 
 @bp.route("/shorten", methods=["POST"])
 def create_short_url():
