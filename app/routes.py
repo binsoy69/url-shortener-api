@@ -50,3 +50,28 @@ def get_original_url(short_code):
         "updatedAt": short_url.updated_at.isoformat()
     }), 200
 
+@bp.route("/shorten/<string:short_code>", methods=["PUT"])
+def update_short_url(short_code):
+    data = request.get_json()
+
+    if not data or "url" not in data:
+        return jsonify({"error": "Missing 'url' field in request"}), 400
+
+    short_url = ShortURL.query.filter_by(short_code=short_code).first()
+
+    if not short_url:
+        return jsonify({"error": "Short URL not found"}), 404
+
+    short_url.url = data["url"]
+    short_url.updated_at = datetime.now(timezone.utc)
+
+    db.session.commit()
+
+    return jsonify({
+        "id": short_url.id,
+        "url": short_url.url,
+        "shortCode": short_url.short_code,
+        "createdAt": short_url.created_at.isoformat(),
+        "updatedAt": short_url.updated_at.isoformat()
+    }), 200
+
