@@ -42,6 +42,9 @@ def get_original_url(short_code):
         return jsonify({"error": "Short URL not found"}), 404
 
     # Optional: increment access count here if this counts as an access
+    short_url.access_count += 1
+    db.session.commit()
+
     return jsonify({
         "id": short_url.id,
         "url": short_url.url,
@@ -86,3 +89,17 @@ def delete_short_url(short_code):
     db.session.commit()
 
     return '', 204
+
+
+@bp.route("/shorten/<string:short_code>/stats", methods=["GET"])
+def get_url_stats(short_code):
+    short_url = ShortURL.query.filter_by(short_code=short_code).first()
+
+    if not short_url:
+        return jsonify({"error": "Short URL not found"}), 404
+
+    return jsonify({
+        "id": short_url.id,
+        "url": short_url.url,
+        "accessCount": short_url.access_count
+    }), 200
