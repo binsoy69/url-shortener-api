@@ -75,3 +75,14 @@ def update_short_url(short_code):
         "updatedAt": short_url.updated_at.isoformat()
     }), 200
 
+@bp.route("/shorten/<string:short_code>", methods=["DELETE"])
+def delete_short_url(short_code):
+    short_url = ShortURL.query.filter_by(short_code=short_code).first()
+
+    if not short_url:
+        return jsonify({"error": "Short URL not found"}), 404
+
+    db.session.delete(short_url)
+    db.session.commit()
+
+    return '', 204
